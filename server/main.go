@@ -18,18 +18,18 @@ func main() {
 	router.Use(gin.Logger(), cors.Default())
 
 	//routes
-	router.GET("/entries", routes.GetEntries())
+	router.GET("/entries", routes.GetEntries)
 	entryRoute := router.Group("/entry")
 	{
-		entryRoute.POST("/create", routes.AddEntry())
-		entryRoute.GET("/:id", routes.EntryById())
-		entryRoute.PUT("/update/:id", routes.UpdateEntry())
-		entryRoute.DELETE("/delete/:id", routes.DeleteEntry())
+		entryRoute.POST("/create", routes.AddEntry)
+		entryRoute.GET("/:id", routes.GetEntryById)
+		entryRoute.PUT("/update/:id", routes.UpdateEntry)
+		entryRoute.DELETE("/delete/:id", routes.DeleteEntry)
 	}
 	ingredientsRoute := router.Group("/ingredients")
 	{
-		ingredientsRoute.GET("/:ingredients", routes.GetEntriesByIngredient())
-		ingredientsRoute.PUT("/update/:id", routes.UpdateIngredient())
+		ingredientsRoute.GET("/:ingredients", routes.GetEntriesByIngredient)
+		ingredientsRoute.PUT("/update/:id", routes.UpdateIngredient)
 	}
 
 	router.Run(":" + port)
