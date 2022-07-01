@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/leksyking/calorie-tracker/routes"
+	"github.com/leksyking/calorie-tracker-app/routes"
 )
 
 func main() {
