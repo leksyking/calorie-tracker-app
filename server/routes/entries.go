@@ -31,8 +31,15 @@ func AddEntry(c *gin.Context) {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(entry)
-	c.JSON(http.StatusCreated, result)
+	var inserted models.Entry
+	err = entryCollection.FindOne(ctx, bson.M{"_id": result.InsertedID}).Decode(&inserted)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(inserted)
+	c.JSON(http.StatusCreated, inserted)
 }
 func GetEntries(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
@@ -63,7 +70,7 @@ func GetEntryById(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
 	var entry bson.M
-	if err := entryCollection.FindOne(ctx, bson.M{"id": docID}).Decode(&entry); err != nil {
+	if err := entryCollection.FindOne(ctx, bson.M{"_id": docID}).Decode(&entry); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		fmt.Println(err)
 		return
@@ -84,7 +91,7 @@ func DeleteEntry(c *gin.Context) {
 	docID, _ := primitive.ObjectIDFromHex(entryID)
 	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
-	result, err := entryCollection.DeleteOne(ctx, bson.M{"id": docID})
+	result, err := entryCollection.DeleteOne(ctx, bson.M{"_id": docID})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		fmt.Println(err)
