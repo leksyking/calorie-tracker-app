@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/leksyking/calorie-tracker-app/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -15,7 +16,23 @@ import (
 var entryCollection *mongo.Collection = OpenCollection(Client, "calories")
 
 func AddEntry(c *gin.Context) {
-
+	var entry models.Entry
+	if err := c.BindJSON(&entry); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		fmt.Println(err)
+		return
+	}
+	entry.ID = primitive.NewObjectID()
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+	result, err := entryCollection.InsertOne(ctx, entry)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(entry)
+	c.JSON(http.StatusCreated, result)
 }
 func GetEntries(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
