@@ -111,7 +111,26 @@ func UpdateEntry(c *gin.Context) {
 	c.JSON(http.StatusOK, result.ModifiedCount)
 }
 func UpdateIngredient(c *gin.Context) {
-
+	entryID := c.Params.ByName("id")
+	docID, _ := primitive.ObjectIDFromHex(entryID)
+	type Ingredient struct {
+		Ingredients *string `json:"ingredients"`
+	}
+	var ingredient Ingredient
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+	if err := c.BindJSON(&ingredient); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		fmt.Println(err)
+		return
+	}
+	result, err := entryCollection.UpdateOne(ctx, bson.M{"_id": docID}, bson.D{{Key: "$set", Value: bson.D{{Key: "ingredients", Value: ingredient.Ingredients}}}})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		fmt.Println(err)
+		return
+	}
+	c.JSON(http.StatusOK, result.ModifiedCount)
 }
 
 func DeleteEntry(c *gin.Context) {
