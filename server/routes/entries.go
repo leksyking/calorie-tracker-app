@@ -80,7 +80,18 @@ func GetEntryById(c *gin.Context) {
 }
 
 func UpdateEntry(c *gin.Context) {
-
+	entryID := c.Params.ByName("id")
+	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+	var entry models.Entry
+	if err := c.BindJSON(&entry); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	filter := bson.M{"_id": entryID}
+	update := bson.D{{Key: "$set", Value: bson.M{"dish": entry.Dish, "calories": entry.Calories, "ingredients": entry.Ingredients, "fat": entry.Fat}}}
+	result := entryCollection.FindOneAndUpdate(ctx, filter, update)
+	c.JSON(http.StatusOK, result)
 }
 func UpdateIngredient(c *gin.Context) {
 
