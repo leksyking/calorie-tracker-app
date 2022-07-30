@@ -20,6 +20,8 @@ var (
 )
 
 func AddEntry(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
 	var entry models.Entry
 	if err := c.BindJSON(&entry); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -33,8 +35,6 @@ func AddEntry(c *gin.Context) {
 		return
 	}
 	entry.ID = primitive.NewObjectID()
-	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
-	defer cancel()
 	result, insertErr := entryCollection.InsertOne(ctx, entry)
 	if insertErr != nil {
 		msg := fmt.Sprintln("entry item was not created")
