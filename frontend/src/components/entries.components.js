@@ -91,6 +91,30 @@ const Entries = ()=>{
         </div>
     );
 
+    function changeIngredientForEntry(){
+        changeIngredient.change = false;
+        var url = "http://localhost:3000/ingredients/update/" + changeIngredient.id
+        axios.put(url, {
+            "ingredients": newIngredientName
+        }).then(response => {
+            console.log(response.status);
+            if (response.status == 200){
+                setRefreshData(true)
+            }
+        })
+    }
+    
+    function changeSingleEntry(){
+        changeEntry.change = false;
+        var url = "http://localhost:3000/entry/update/" + changeEntry.id
+        axios.put(url, newEntry)
+        .then(response => {
+            if(response.status == 200){
+                setRefreshData(true)
+            }
+        })
+    }
+
     function addSingleEntry(){
         setAddNewEntry(false)
         var url = "http://localhost:3000/entry/create"
@@ -107,7 +131,7 @@ const Entries = ()=>{
     }
     
     function deleteSingleEntry(id){
-        var url = "http://localhost:3000/entry/delete" + id
+        var url = "http://localhost:3000/entry/delete/" + id
         axios.delete(url, ).then(response =>  {
             if (response.status == 200) {
                 setRefreshData(true)
@@ -126,3 +150,5 @@ const Entries = ()=>{
         })
     }
 }
+
+export default Entries
